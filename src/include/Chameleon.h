@@ -1,4 +1,4 @@
-/* 
+/*
    Chameleon.h
 
    Copyright (C) 2002-2004 René Nyffenegger
@@ -53,5 +53,5 @@ private:
   std::string value_;
 };
 
-#include <impl/Chameleon.hpp>
+#include "impl/Chameleon.hpp"
 #endif

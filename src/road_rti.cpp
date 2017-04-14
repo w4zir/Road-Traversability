@@ -1,4 +1,4 @@
-#include "include/prt.h"
+#include "include/rti.h"
 #include "include/ConfigFile.h"
 
 #include <ctime>
@@ -32,9 +32,11 @@ int main(int argc, char *argv[])
 	/*
 	 * Read paths from settings.config file and vehicle count from vehicle_parameters.config
 	 */
-	ConfigFile cf("/home/khan/phd_ws/rrlab_code/road_ws/data/settings.config");
-
-	ConfigFile vcf("/home/khan/phd_ws/rrlab_code/road_ws/data/vehicle_parameters.config");
+	ConfigFile cf("../configs/settings.config");
+	char result[ PATH_MAX ];
+		ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+		std::cout << std::string( result, (count > 0) ? count : 0 ) << std::endl;
+	ConfigFile vcf("../configs/vehicle_parameters.config");
 	int vehicle_count = vcf.Value("vehicle_info","vehicle_count");
 
 	std::cout << vehicle_count << "\t" << vehicle_count << std::endl;
@@ -157,17 +159,17 @@ int main(int argc, char *argv[])
 					proj_plane_coefficients->values[2] = 1.0;
 					proj_plane_coefficients->values[3] = 0;
 
-					pcl::PRT<pcl::PointXYZ> prtObj;
-					prtObj.setVehicleId(vehicle_id);
-					prtObj.setInputCloud(cloud_in);
-					prtObj.SetProjectedPlaneCoefficients(proj_plane_coefficients);
-					prtObj.setRandomConfigsFlag(true);
-					prtObj.setObstaclesInfo(obstacles_info);
-					prtObj.computePRT();
-					std::vector< std::pair<int,int> > prt_graph;
-					prtObj.getPRTAdjacencyList(prt_graph);
+					pcl::RTI<pcl::PointXYZ> RTIObj;
+					RTIObj.setVehicleId(vehicle_id);
+					RTIObj.setInputCloud(cloud_in);
+					RTIObj.SetProjectedPlaneCoefficients(proj_plane_coefficients);
+					RTIObj.setRandomConfigsFlag(true);
+					//RTIObj.setObstaclesInfo(obstacles_info);
+					RTIObj.computeRTI();
+					std::vector< std::pair<int,int> > RTI_graph;
+					RTIObj.getRTIAdjacencyList(RTI_graph);
 					std::vector<float> prm_edge_angel_ratios;
-					prtObj.getEdgeAngelRatios(prm_edge_angel_ratios);
+					RTIObj.getEdgeAngelRatios(prm_edge_angel_ratios);
 
 					std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
@@ -179,9 +181,9 @@ int main(int argc, char *argv[])
 					std::ofstream saveAdjFile(saveAdj.str().c_str());
 					if (saveAdjFile.is_open())
 					{
-						for (int i=0; i < prt_graph.size(); i++)
+						for (int i=0; i < RTI_graph.size(); i++)
 						{
-							saveAdjFile << prt_graph[i].first <<" "<< prt_graph[i].second <<" "<< 1 << " " << prm_edge_angel_ratios[i] << "\n";
+							saveAdjFile << RTI_graph[i].first <<" "<< RTI_graph[i].second <<" "<< 1 << " " << prm_edge_angel_ratios[i] << "\n";
 						}
 						saveAdjFile.close();
 					}else {
@@ -192,22 +194,22 @@ int main(int argc, char *argv[])
 					/*
 					 * save configurations
 					 */
-					Eigen::MatrixXf vehicle_configs = prtObj.getConfigurations();
-					//				int config_counter = PRTObj.getConfigCounter();
+					Eigen::MatrixXf vehicle_configs = RTIObj.getConfigurations();
+					//				int config_counter = RTIObj.getConfigCounter();
 					//				std::cout << "config counter:" << config_counter << std::endl;
-					std::vector<int> config_validity_status = prtObj.getConfigurationsValidityStatus();
-					std::vector<float> config_clearance = prtObj.getConfigurationsClearance();
+					std::vector<int> config_validity_status = RTIObj.getConfigurationsValidityStatus();
+					std::vector<float> config_clearance = RTIObj.getConfigurationsClearance();
 
-					std::stringstream savePRT;
-					savePRT << configFolder.c_str() << fName.substr(0,fName.find(".pcd")) <<"_conf";
-					std::ofstream savePRTFile(savePRT.str().c_str());
-					if (savePRTFile.is_open())
+					std::stringstream saveRTI;
+					saveRTI << configFolder.c_str() << fName.substr(0,fName.find(".pcd")) <<"_conf";
+					std::ofstream saveRTIFile(saveRTI.str().c_str());
+					if (saveRTIFile.is_open())
 					{
 						for (int i=0; i < vehicle_configs.rows(); i++)
 						{
-							savePRTFile << vehicle_configs.row(i) <<" "<<config_validity_status[i]<< " " << config_clearance[i] << "\n";
+							saveRTIFile << vehicle_configs.row(i) <<" "<<config_validity_status[i]<< " " << config_clearance[i] << "\n";
 						}
-						savePRTFile.close();
+						saveRTIFile.close();
 					}else {
 						std::cout<<"Error: can not find directory"<<std::endl;
 						exit(0);
@@ -216,7 +218,7 @@ int main(int argc, char *argv[])
 					//				std::cout << "CPU Time after prm complete = " << cpu2  - cpu1  << std::endl;
 					std::cout << "file written successfully" << endl<< std::endl;
 
-					//  pcl::PointCloud <pcl::PointXYZRGB>::Ptr colored_cloud = prtObj.getDEMVisibilityCloud ();
+					//  pcl::PointCloud <pcl::PointXYZRGB>::Ptr colored_cloud = RTIObj.getDEMVisibilityCloud ();
 					//  writer.write<pcl::PointXYZRGB> ("road_rgb.pcd", *colored_cloud, false);
 					//				boost::shared_ptr<pcl::PolygonMesh> mesh_ptr_;
 					//				mesh_ptr_->polygons[0].vertices[0] = 0;

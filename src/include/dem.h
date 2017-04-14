@@ -19,6 +19,7 @@
 //#include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl/io/pcd_io.h>
 #include <list>
 #include <math.h>
 #include <time.h>
@@ -72,7 +73,7 @@ public:
 	/** \brief Load road information and dem settings. */
 	virtual void
 	loadParameters();
-	
+
 	/** \brief Returns Road plane coefficients. */
 	ModelCoefficient
 	getRoadPlaneCoefficients () const;
@@ -288,6 +289,6 @@ comparePair (std::pair<float, int> i, std::pair<float, int> j)
 
 }
 //#ifdef PCL_NO_PRECOMPILE
-#include <impl/dem.hpp>
+#include "impl/dem.hpp"
 //#endif
 #endif /* DEM_H_ */

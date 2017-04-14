@@ -8,8 +8,8 @@
 #ifndef RTI_HPP_
 #define RTI_HPP_
 
-#include <RTI.h>
-#include <ConfigFile.h>
+#include "rti.h"
+#include "ConfigFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT>
@@ -53,7 +53,6 @@ is_obstacle_known_ (false),
 RTI_graph_ (),
 vehicle_id_ ("")
 {
-		std::cout << "Loading DEM parameters."<< std::endl;
 	//	loadParameters();
 	//search_ =  typename pcl::search::KdTree<PointT>::Ptr (new pcl::search::KdTree<PointT>);
 }
@@ -77,7 +76,9 @@ pcl::RTI<PointT>::loadParameters ()
 	/*
 	 * Read prm parameters from settings.config file
 	 */
-	ConfigFile cf("/home/khan/phd_ws/rrlab_code/road_ws/data/settings.config");
+	std::cout << "Loading RTI parameters."<< std::endl;
+
+	ConfigFile cf("../configs/settings.config");
 	config_x_count_	=	cf.Value("prm_parameters","config_x_count");
 	config_y_count_	=	cf.Value("prm_parameters","config_y_count");
 	config_theta_count_	=	cf.Value("prm_parameters","config_theta_count");
@@ -91,7 +92,7 @@ pcl::RTI<PointT>::loadParameters ()
 	 * Read vehicle parameters from vehicle_parameters.config file
 	 */
 
-	ConfigFile vcf("/home/khan/phd_ws/rrlab_code/road_ws/data/vehicle_parameters.config");
+	ConfigFile vcf("../configs/vehicle_parameters.config");
 
 	vehicle_width_	=	vcf.Value(vehicle_id_,"vehicle_width");
 	vehicle_length_	=	vcf.Value(vehicle_id_,"vehicle_length");
@@ -496,14 +497,14 @@ pcl::RTI<PointT>::getConfigCircluarCenters (Eigen::Vector4f config)
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //template <typename PointT> void
-//pcl::RTI<PointT>::generateRTIGraph ()
+//pcl::RTI<PointT>::generatePRMGraph ()
 //{
 //	std::vector< std::pair<int,int> > RTI_graph;
 //	//float phi_step = vehicle_steering_rate_ / (float)(sub_config_count_ + 1);
 //
 //	bool is_goal = false;
 //	int counter = config_counter_;
-//	std::cout << "config count at start of generateRTIGraph ():"<< config_counter_ << std::endl;
+//	std::cout << "config count at start of generatePRMGraph ():"<< config_counter_ << std::endl;
 //	while (!is_goal && counter < configs_limit_)
 //	{
 //		Eigen::Vector3f q_rand = generateRandomConfiguration();
@@ -550,12 +551,12 @@ pcl::RTI<PointT>::validateConfigurations ()
 		// std::cout << "vehicle config:\t" << c_idx << std::endl;
 		Eigen::MatrixXf vehicle_state = getVehicleState(vehicle_configs_.row(c_idx).head(3));
 		//		Eigen::MatrixXf vehicle_state = getVehicleStateWithClearance(vehicle_configs_.row(c_idx).head(3));
-		//	std::cout << "vehicle config: " << vehicle_configs_.row(c_idx).head(3) << std::endl;
+	//	std::cout << "vehicle config: " << vehicle_configs_.row(c_idx).head(3) << std::endl;
 		// std::cout << "vehicle state: " << vehicle_state << std::endl;
 		//		float state_min_x = vehicle_state.row(1).leftCols(4).minCoeff();
 		int safety_flag = collisionAndSafetyChecker(vehicle_state);
 		// int safety_flag = collisionCheckerWithKnownObstacles(vehicle_state);
-		// std::cout << "safety_flag: " << safety_flag << std::endl;
+	//	std::cout << "safety_flag: " << safety_flag << std::endl;
 		if(safety_flag == 1)
 		{
 			config_collision_status_[c_idx] = 1;
@@ -713,7 +714,7 @@ pcl::RTI<PointT>::findConfigsConnectivity (Eigen::Vector4f c_config, Eigen::Vect
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> void
-pcl::RTI<PointT>::generateRTIGraph ()
+pcl::RTI<PointT>::generatePRMGraph ()
 {
 	std::vector< std::pair<int,int> > RTI_graph;
 
@@ -802,7 +803,8 @@ pcl::RTI<PointT>::generateRTIGraph ()
 							//		std::cout << "vehicle state: " << vehicle_state << std::endl;
 							//		float state_min_x = vehicle_state.row(1).leftCols(4).minCoeff();
 							//                            int sub_config_valid_flag = collisionAndSafetyChecker(vehicle_state);
-							int sub_config_valid_flag = collisionCheckerWithKnownObstacles(vehicle_state);
+							// int sub_config_valid_flag = collisionCheckerWithKnownObstacles(vehicle_state);
+							int sub_config_valid_flag = collisionAndSafetyChecker(vehicle_state);
 							// std::cout << "sub-config:" << sub_config.transpose() << "\t validity:" << sub_config_valid_flag <<"\t s_idx:"<<s_idx <<"\t n_sub_configs:"<<n_sub_configs.rows()<< std::endl;
 							if (sub_config_valid_flag == -1)
 							{
@@ -828,7 +830,7 @@ pcl::RTI<PointT>::generateRTIGraph ()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //template <typename PointT> void
-//pcl::RTI<PointT>::generateRTIGraph ()
+//pcl::RTI<PointT>::generatePRMGraph ()
 //{
 //	std::vector< std::pair<int,int> > RTI_graph;
 //
@@ -1946,7 +1948,7 @@ pcl::RTI<PointT>::computeRTI ()
 	findConfigNeighbours();
 
 	std::cout << "Generating Graph." << std::endl;
-	generateRTIGraph();
+	generatePRMGraph();
 
 	deinitCompute ();
 }

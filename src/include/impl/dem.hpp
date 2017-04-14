@@ -8,8 +8,8 @@
 #ifndef DEM_HPP_
 #define DEM_HPP_
 
-#include <dem.h>
-#include <ConfigFile.h>
+#include "../dem.h"
+#include "../ConfigFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT>
@@ -35,7 +35,6 @@ projected_plane_coeff_ (),
 road_coefficients_()
 {
 	//search_ =  typename pcl::search::KdTree<PointT>::Ptr (new pcl::search::KdTree<PointT>);
-std::cout << "Loading DEM parameters."<< std::endl;
 loadParameters ();
 	//	std::cout << neighbour_radius_ << ", " << dimension_x_ << ", " << road_width_ << ", " << distance_max_ << ", " << distance_cluster_ << std::endl;
 }
@@ -56,7 +55,8 @@ pcl::DEM<PointT>::loadParameters ()
 	/*
 	 * Read road information and dem settings from settings.config file
 	 */
-	ConfigFile cf("/home/khan/phd_ws/rrlab_code/road_ws/data/settings.config");
+	 std::cout << "Loading DEM parameters."<< std::endl;
+	 ConfigFile cf("../configs/settings.config");
 
 	road_min_x_		=	cf.Value("road_info","road_min_x");
 	road_max_x_		=	cf.Value("road_info","road_max_x");
@@ -279,7 +279,8 @@ pcl::DEM<PointT>::transformCloud2XYPlane()
 	pcl::transformPointCloud (*input_, *xyTransformCloud, transform);
 	input_ = xyTransformCloud;
 	std::cout <<"points in transformed pointcloud:\t"<<input_->points.size() << std::endl;
-
+// pcl::PCDWriter writer;
+// writer.write<pcl::PointXYZ> ("transformed.pcd", *input_, false);
 	// for kitti dataset we have to swap x and y coordinates
 }
 
@@ -295,6 +296,8 @@ pcl::DEM<PointT>::projectPointCloud ()
 	proj.filter (*cloud_project);
 	cloud_project_ = cloud_project;
 	std::cout <<"pointcloud projected." << std::endl;
+// pcl::PCDWriter writer;
+// 	writer.write<pcl::PointXYZ> ("cloud_project.pcd", *cloud_project_, false);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> void
@@ -419,7 +422,7 @@ pcl::DEM<PointT>::findPointNeighbours ()
 		{
 			n_zero++;
 		}
-		//  std::cout << "neighbours:" << neighbours.size() << std::endl;
+	//	std::cout << "neighbours:" << neighbours.size() << std::endl;
 		point_neighbours_[i_point].swap (neighbours);
 	}
 	std::cout <<"zero neighbor count:" << n_zero << std::endl;
@@ -441,7 +444,7 @@ pcl::DEM<PointT>::preProcessing ()
 		return (false);
 
 	// transform pointcloud to xy-plane
-	//transformCloud2XYPlane();
+	transformCloud2XYPlane();
 
 	// check whether input cloud is already projected
 	if(!is_projected_)
@@ -450,7 +453,7 @@ pcl::DEM<PointT>::preProcessing ()
 	}
 
 	// get min and max of point cloud
-	//getMinMax();
+	getMinMax();
 
 	// if user forgot to pass normals or the sizes of point and normal cloud are different
 	if ( cloud_project_ == 0 || input_->points.size () != cloud_project_->points.size () )

@@ -24,7 +24,7 @@
 #include <list>
 #include <math.h>
 #include <time.h>
-#include <dem.h>
+#include "dem.h"
 #include <iostream>
 #include <fstream>
 
@@ -181,10 +181,6 @@ protected:
 	virtual Eigen::Vector4f
 	findOptimalConfig (Eigen::Vector3f qrand, Eigen::Vector4f qnear);
 
-	/** \brief Find whether the q_new is in goal area. */
-	virtual bool
-	checkGoalReached (Eigen::Vector4f q_new);
-
 	/** \brief Check whether q_new is safe or not. */
 	virtual int
 	checkConfigSafety (Eigen::Vector4f config);
@@ -211,7 +207,7 @@ protected:
 
 	/** \brief Returns dimension of RTI in y direction. */
 	virtual void
-	generateRTIGraph();
+	generatePRMGraph();
 
 	/** \brief Returns dimension of RTI in y direction. */
 	virtual void
@@ -483,6 +479,6 @@ public:
 //}
 }
 //#ifdef PCL_NO_PRECOMPILE
-#include <impl/RTI.hpp>
+#include <impl/rti.hpp>
 //#endif
 #endif /* RTI_H_ */

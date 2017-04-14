@@ -1,0 +1,29 @@
+[paths]
+pointcloud_folder = /home/khan/phd_ws/traversability/pointclouds/kitti/2011_09_26_drive_0086/
+configuations_folder = /home/khan/phd_ws/traversability/configs/kitti_86/
+adjaceny_folder = /home/khan/phd_ws/traversability/adjacency/kitti_86/
+
+[road_info]
+road_min_x	=	-3
+road_max_x	=	3
+road_min_y	=	-5
+road_max_y	= 	5
+road_width	=	6.0
+road_length	=	10
+
+[dem_parameters]
+neighbour_radius	= 	0.1
+dimension_x	=	61
+dimension_y	=	101	
+distance_max	=	10
+distance_cluster	=	0.15
+
+[prm_parameters]
+config_x_count	=	25
+config_y_count	=	41
+config_theta_count	=	7
+min_theta	=	60
+max_theta	=	120
+negative_obs_threshold=0.2
+config_neighbour_radius=2.0
+prm_step_size=0.1

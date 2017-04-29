@@ -14,6 +14,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT>
 pcl::DEM<PointT>::DEM () :
+debug_mode_ (false),
 neighbour_radius_ (0.05),
 dimension_x_ (41),
 dimension_y_ (201),
@@ -55,9 +56,17 @@ pcl::DEM<PointT>::loadParameters ()
 	/*
 	 * Read road information and dem settings from settings.config file
 	 */
-	 std::cout << "Loading DEM parameters."<< std::endl;
-	 ConfigFile cf("../configs/settings.config");
+	std::cout << "Loading DEM parameters."<< std::endl;
+	ConfigFile cf("../configs/settings.config");
 
+	debug_mode_  = (bool)cf.Value("general","debug_mode");
+  if (debug_mode_)
+	{
+		std::cout << "Running with debug mode on." << std::endl;
+	} else
+	{
+		std::cout << "Running with debug mode off." << std::endl;
+	}
 	road_min_x_		=	cf.Value("road_info","road_min_x");
 	road_max_x_		=	cf.Value("road_info","road_max_x");
 	road_min_y_		=	cf.Value("road_info","road_min_y");
@@ -408,8 +417,8 @@ pcl::DEM<PointT>::findPointNeighbours ()
 	std::vector<float> distances;
 
 	int n_zero = 0;
-	//  std::cout << "neighbour_radius_:" << neighbour_radius_ << std::endl;
-	point_neighbours_.resize (input_->points.size (), neighbours);
+	//std::cout << "cloud_dem_->points.size ():" << cloud_dem_->points.size () << std::endl;
+	point_neighbours_.resize (point_number, neighbours);
 	for (int i_point = 0; i_point < point_number; i_point++)
 	{
 		neighbours.clear ();
@@ -422,7 +431,7 @@ pcl::DEM<PointT>::findPointNeighbours ()
 		{
 			n_zero++;
 		}
-	//	std::cout << "neighbours:" << neighbours.size() << std::endl;
+	//	std::cout << "total:"<< point_number <<"\t id:"<< i_point << "\t neighbours:" << neighbours.size() << std::endl;
 		point_neighbours_[i_point].swap (neighbours);
 	}
 	std::cout <<"zero neighbor count:" << n_zero << std::endl;

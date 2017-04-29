@@ -49,6 +49,7 @@ public:
   operator double     () const;
   operator float     () const;
   operator int     () const;
+  operator bool     () const;
 private:
   std::string value_;
 };

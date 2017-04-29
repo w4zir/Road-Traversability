@@ -44,6 +44,8 @@ public:
 	typedef pcl::PointCloud <PointT> PointCloud;
 	typedef typename PointCloud::Ptr PointCloudPtr;
 
+	using DEM<PointT>::debug_mode_;
+
 	using DEM<PointT>::road_min_x_;
 	using DEM<PointT>::road_max_x_;
 	using DEM<PointT>::road_min_y_;

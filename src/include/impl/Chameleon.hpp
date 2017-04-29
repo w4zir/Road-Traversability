@@ -1,4 +1,4 @@
-/* 
+/*
    Chameleon.cpp
 
    Copyright (C) 2002-2004 René Nyffenegger
@@ -26,8 +26,9 @@
 
 #include <string>
 #include <sstream>
-#include <cstdlib> 
+#include <cstdlib>
 #include <iostream>
+#include <algorithm>
 #include "Chameleon.h"
 
 Chameleon::Chameleon(std::string const& value) {
@@ -76,13 +77,24 @@ Chameleon::operator std::string() const {
 }
 
 Chameleon::operator double() const {
-	return std::atof(value_.c_str());  
+	return std::atof(value_.c_str());
 }
 
 Chameleon::operator float() const {
-	return std::atof(value_.c_str());  
+	return std::atof(value_.c_str());
 }
 
 Chameleon::operator int() const {
-	return std::atoi(value_.c_str());  
+	return std::atoi(value_.c_str());
+}
+
+Chameleon::operator bool() const {
+	//std::string lower_value = std::transform(value_.begin(), value_.end(), value_.begin(), ::tolower);
+	if (value_ == "true")
+	{
+		return true;
+	} else
+	{
+		return false;
+	}
 }

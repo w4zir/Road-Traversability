@@ -220,6 +220,9 @@ protected:
 protected:
 
 	/** \brief Number of cells in x dimension. */
+	bool debug_mode_;
+
+	/** \brief Number of cells in x dimension. */
 	float dimension_x_;
 
 	/** \brief Number of cells in z dimension. */

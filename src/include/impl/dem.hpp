@@ -272,7 +272,7 @@ pcl::DEM<PointT>::transformCloud2XYPlane()
 	pcl::PointCloud<pcl::PointXYZ>::Ptr xyTransformCloud (new pcl::PointCloud<pcl::PointXYZ> ());
 	//get transformation
 	Eigen::Vector3f normalXYPlane (0.0,0.0,1.0);
-	Eigen::Vector3f normalRoadPlane (coefficients->values[0],coefficients->values[1],coefficients->values[2]);
+	Eigen::Vector3f normalRoadPlane (coefficients->values[0]+0.0000000001,coefficients->values[1]+0.0000000001,coefficients->values[2]+0.0000000001);
 	Eigen::Vector3f cNormal = normalRoadPlane.cross(normalXYPlane);
 	float sNormal = sqrt(cNormal.squaredNorm());
 	float dNormal = normalRoadPlane.dot(normalXYPlane);

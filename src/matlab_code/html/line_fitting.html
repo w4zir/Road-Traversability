@@ -1,0 +1,380 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Machine Learning Online Class - Exercise 1: Linear Regression</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-07-20"><meta name="DC.source" content="line_fitting.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Machine Learning Online Class - Exercise 1: Linear Regression</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Initialization</a></li><li><a href="#2">==================== Part 1: Basic Function ====================</a></li><li><a href="#3">=================== Part 3: Gradient descent ===================</a></li><li><a href="#4">============= Part 5: Compute safety distance using projection =============</a></li><li><a href="#5">============= plot</a></li><li><a href="#6">============= Part 4: Visualizing J(theta_0, theta_1) =============</a></li></ul></div><h2>Initialization<a name="1"></a></h2><pre class="codeinput">clear ; close <span class="string">all</span>; clc
+</pre><h2>==================== Part 1: Basic Function ====================<a name="2"></a></h2><pre class="codeinput">load(<span class="string">'safe_roads_rand.mat'</span>);
+frame_id = 3;
+
+<span class="comment">% get frame configs</span>
+idx = find(configsLog(:,7) == frame_id);
+configs = configsLog(idx,1:6);
+
+<span class="comment">% get frame safe mincut nodes</span>
+idx = find(safeMincutLog(:,2) == frame_id);
+mc_idx = safeMincutLog(idx,1);
+mc_configs = configs(mc_idx,:);
+data = mc_configs;
+
+<span class="comment">% set data for gradient descent</span>
+X = data(:, 1); y = data(:, 2); slope = mean(data(:,4))-90
+m = length(y); <span class="comment">% number of training examples</span>
+
+<span class="comment">% Plot Data</span>
+<span class="comment">% Note: You have to complete the code in plotData.m</span>
+plotData(X, y);
+
+fprintf(<span class="string">'Program paused. Press enter to continue.\n'</span>);
+<span class="comment">% pause;</span>
+</pre><pre class="codeoutput">
+slope =
+
+   -90
+
+Program paused. Press enter to continue.
+</pre><img vspace="5" hspace="5" src="line_fitting_01.png" alt=""> <h2>=================== Part 3: Gradient descent ===================<a name="3"></a></h2><pre class="codeinput">fprintf(<span class="string">'Running Gradient Descent ...\n'</span>)
+
+X = [ones(m, 1), data(:,2)]; <span class="comment">% Add a column of ones to x</span>
+theta = [0; 0]; <span class="comment">% initialize fitting parameters</span>
+<span class="comment">% theta = [0; tand(slope)]; % initialize fitting parameters</span>
+
+<span class="comment">% Some gradient descent settings</span>
+iterations = 1500;
+alpha = 0.01;
+
+<span class="comment">% compute and display initial cost</span>
+computeCost(X, y, theta)
+
+<span class="comment">% run gradient descent</span>
+theta = gradientDescent(X, y, theta, slope, alpha, iterations)
+
+<span class="comment">% print theta to screen</span>
+fprintf(<span class="string">'Theta found by gradient descent: '</span>);
+fprintf(<span class="string">'%f %f \n'</span>, theta(1), theta(2));
+
+<span class="comment">% Plot the linear fit</span>
+hold <span class="string">on</span>; <span class="comment">% keep previous plot visible</span>
+plot(X(:,2), X*theta, <span class="string">'-'</span>)
+legend(<span class="string">'Training data'</span>, <span class="string">'Linear regression'</span>)
+hold <span class="string">off</span> <span class="comment">% don't overlay any more plots on this figure</span>
+
+<span class="comment">% %% ============= Part 4: Compute safety distance =============</span>
+<span class="comment">% xval = X(:,2);</span>
+<span class="comment">% yval = X*theta;</span>
+<span class="comment">% [x y] = meshgrid(1:m,1:m);</span>
+<span class="comment">% dist = sqrt((xval(x)-xval(y)).^2 + (yval(x)-yval(y)).^2);</span>
+<span class="comment">% [max_val] = max(max(dist));</span>
+</pre><pre class="codeoutput">Running Gradient Descent ...
+
+ans =
+
+    0.2432
+
+
+theta =
+
+   NaN
+  -Inf
+
+Theta found by gradient descent: NaN -Inf 
+</pre><img vspace="5" hspace="5" src="line_fitting_02.png" alt=""> <h2>============= Part 5: Compute safety distance using projection =============<a name="4"></a></h2><pre class="codeinput">safe_mc = data(:,2:4);
+norm_factor = sqrt(theta(2)^2 + 1);
+a = -theta(2); b=1; c=-theta(1);
+<span class="comment">% a = 0; b=1; c=-0.5;</span>
+point_dist_to_line = (safe_mc(:,1:2)*[a;b] + c)/norm_factor;
+idx = find(abs(point_dist_to_line) &lt; 0.5);
+
+<span class="comment">% point_dist_to_line = point_dist_to_line(idx);</span>
+<span class="comment">% safe_mc = safe_mc(idx,:);</span>
+idx1 = find(point_dist_to_line &lt; 0);
+idx2 = find(point_dist_to_line &gt;= 0);
+mc1 = safe_mc(idx1,:);
+mc2 = safe_mc(idx2,:);
+mean(mc1(:,3))
+mean(mc2(:,3))
+
+<span class="comment">% points = safe_mc - dist*[cosd(90+slope) sind(90+slope)];</span>
+points = safe_mc(:,1:2) + [point_dist_to_line.*[cosd(safe_mc(:,3))./(sind(slope-safe_mc(:,3)))]  point_dist_to_line.*[sind(safe_mc(:,3))./(sind(slope-safe_mc(:,3)))]];
+hold <span class="string">on</span>
+plot(points(:,1),points(:,2),<span class="string">'bo'</span>);
+xval = points(:,1);
+yval = points(:,2);
+[x y] = meshgrid(1:numel(point_dist_to_line),1:numel(point_dist_to_line));
+dist = sqrt((xval(x)-xval(y)).^2 + (yval(x)-yval(y)).^2);
+<span class="comment">% [max_val] = max(max(dist))</span>
+[safety_value, maxIndex] = max(dist(:));
+[row, col] = ind2sub(size(dist), maxIndex);
+<span class="comment">% plot(points(row,1),points(row,2),'r*');</span>
+<span class="comment">% plot(points(col,1),points(col,2),'r*');</span>
+safety_value
+
+<span class="comment">% %% ============= Part 5: Compute alternative safety distance using projection =============</span>
+<span class="comment">% safe_mc = data(:,2:3);</span>
+<span class="comment">% norm_factor = sqrt(theta(2)^2 + 1);</span>
+<span class="comment">% a = -theta(2); b=1; c=-theta(1);</span>
+<span class="comment">% dist = (safe_mc*[a;b] + c)/norm_factor;</span>
+<span class="comment">%</span>
+<span class="comment">% points = safe_mc - dist*[cosd(90+slope) sind(90+slope)];</span>
+<span class="comment">% hold on</span>
+<span class="comment">% plot(points(:,1),points(:,2),'bo');</span>
+<span class="comment">% xval = points(:,1);</span>
+<span class="comment">% yval = points(:,2);</span>
+<span class="comment">% [x y] = meshgrid(1:m,1:m);</span>
+<span class="comment">% dist = sqrt((xval(x)-xval(y)).^2 + (yval(x)-yval(y)).^2);</span>
+<span class="comment">% % [max_val] = max(max(dist))</span>
+<span class="comment">% [maxNum, maxIndex] = max(dist(:));</span>
+<span class="comment">% [row, col] = ind2sub(size(dist), maxIndex);</span>
+<span class="comment">% % plot(points(row,1),points(row,2),'r*');</span>
+<span class="comment">% % plot(points(col,1),points(col,2),'r*');</span>
+<span class="comment">% maxNum</span>
+</pre><pre class="codeoutput">
+ans =
+
+   NaN
+
+
+ans =
+
+   NaN
+
+
+safety_value =
+
+   NaN
+
+</pre><img vspace="5" hspace="5" src="line_fitting_03.png" alt=""> <h2>============= plot<a name="5"></a></h2><pre class="codeinput">configs = safe_mc;
+x_prm = configs(:,1);
+y_prm = configs(:,2);
+t_prm = configs(:,3);
+u_prm = cosd(t_prm);
+v_prm = sind(t_prm);
+quiver(x_prm,y_prm,u_prm,v_prm,0.5,<span class="string">'g'</span>)
+</pre><img vspace="5" hspace="5" src="line_fitting_04.png" alt=""> <h2>============= Part 4: Visualizing J(theta_0, theta_1) =============<a name="6"></a></h2><p>fprintf('Visualizing J(theta_0, theta_1) ...\n')</p><p>% Grid over which we will calculate J theta0_vals = linspace(-10, 10, 100); theta1_vals = linspace(-1, 4, 100);</p><p>% initialize J_vals to a matrix of 0's J_vals = zeros(length(theta0_vals), length(theta1_vals));</p><p>% Fill out J_vals for i = 1:length(theta0_vals)     for j = 1:length(theta1_vals) 	  t = [theta0_vals(i); theta1_vals(j)]; 	  J_vals(i,j) = computeCost(X, y, t);     end end</p><p>% Because of the way meshgrids work in the surf command, we need to % transpose J_vals before calling surf, or else the axes will be flipped J_vals = J_vals'; % Surface plot figure; surf(theta0_vals, theta1_vals, J_vals) xlabel('\theta_0'); ylabel('\theta_1');</p><p>% Contour plot figure; % Plot J_vals as 15 contours spaced logarithmically between 0.01 and 100 contour(theta0_vals, theta1_vals, J_vals, logspace(-2, 3, 20)) xlabel('\theta_0'); ylabel('\theta_1'); hold on; plot(theta(1), theta(2), 'rx', 'MarkerSize', 10, 'LineWidth', 2);</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Machine Learning Online Class - Exercise 1: Linear Regression
+
+
+%% Initialization
+clear ; close all; clc
+
+%% ==================== Part 1: Basic Function ====================
+
+load('safe_roads_rand.mat');
+frame_id = 3;
+
+% get frame configs
+idx = find(configsLog(:,7) == frame_id);
+configs = configsLog(idx,1:6);
+
+% get frame safe mincut nodes
+idx = find(safeMincutLog(:,2) == frame_id);
+mc_idx = safeMincutLog(idx,1);
+mc_configs = configs(mc_idx,:);
+data = mc_configs;
+
+% set data for gradient descent
+X = data(:, 1); y = data(:, 2); slope = mean(data(:,4))-90
+m = length(y); % number of training examples
+
+% Plot Data
+% Note: You have to complete the code in plotData.m
+plotData(X, y);
+
+fprintf('Program paused. Press enter to continue.\n');
+% pause;
+
+%% =================== Part 3: Gradient descent ===================
+fprintf('Running Gradient Descent ...\n')
+
+X = [ones(m, 1), data(:,2)]; % Add a column of ones to x
+theta = [0; 0]; % initialize fitting parameters
+% theta = [0; tand(slope)]; % initialize fitting parameters
+
+% Some gradient descent settings
+iterations = 1500;
+alpha = 0.01;
+
+% compute and display initial cost
+computeCost(X, y, theta)
+
+% run gradient descent
+theta = gradientDescent(X, y, theta, slope, alpha, iterations)
+
+% print theta to screen
+fprintf('Theta found by gradient descent: ');
+fprintf('%f %f \n', theta(1), theta(2));
+
+% Plot the linear fit
+hold on; % keep previous plot visible
+plot(X(:,2), X*theta, '-')
+legend('Training data', 'Linear regression')
+hold off % don't overlay any more plots on this figure
+
+% %% ============= Part 4: Compute safety distance =============
+% xval = X(:,2);
+% yval = X*theta;
+% [x y] = meshgrid(1:m,1:m);
+% dist = sqrt((xval(x)-xval(y)).^2 + (yval(x)-yval(y)).^2);
+% [max_val] = max(max(dist));
+
+%% ============= Part 5: Compute safety distance using projection =============
+safe_mc = data(:,2:4);
+norm_factor = sqrt(theta(2)^2 + 1);
+a = -theta(2); b=1; c=-theta(1);
+% a = 0; b=1; c=-0.5;
+point_dist_to_line = (safe_mc(:,1:2)*[a;b] + c)/norm_factor;
+idx = find(abs(point_dist_to_line) < 0.5);
+
+% point_dist_to_line = point_dist_to_line(idx);
+% safe_mc = safe_mc(idx,:);
+idx1 = find(point_dist_to_line < 0);
+idx2 = find(point_dist_to_line >= 0);
+mc1 = safe_mc(idx1,:);
+mc2 = safe_mc(idx2,:);
+mean(mc1(:,3))
+mean(mc2(:,3))
+
+% points = safe_mc - dist*[cosd(90+slope) sind(90+slope)];
+points = safe_mc(:,1:2) + [point_dist_to_line.*[cosd(safe_mc(:,3))./(sind(slope-safe_mc(:,3)))]  point_dist_to_line.*[sind(safe_mc(:,3))./(sind(slope-safe_mc(:,3)))]];
+hold on
+plot(points(:,1),points(:,2),'bo');
+xval = points(:,1);
+yval = points(:,2);
+[x y] = meshgrid(1:numel(point_dist_to_line),1:numel(point_dist_to_line));
+dist = sqrt((xval(x)-xval(y)).^2 + (yval(x)-yval(y)).^2);
+% [max_val] = max(max(dist))
+[safety_value, maxIndex] = max(dist(:));
+[row, col] = ind2sub(size(dist), maxIndex);
+% plot(points(row,1),points(row,2),'r*');
+% plot(points(col,1),points(col,2),'r*');
+safety_value
+
+% %% ============= Part 5: Compute alternative safety distance using projection =============
+% safe_mc = data(:,2:3);
+% norm_factor = sqrt(theta(2)^2 + 1);
+% a = -theta(2); b=1; c=-theta(1);
+% dist = (safe_mc*[a;b] + c)/norm_factor;
+%
+% points = safe_mc - dist*[cosd(90+slope) sind(90+slope)];
+% hold on
+% plot(points(:,1),points(:,2),'bo');
+% xval = points(:,1);
+% yval = points(:,2);
+% [x y] = meshgrid(1:m,1:m);
+% dist = sqrt((xval(x)-xval(y)).^2 + (yval(x)-yval(y)).^2);
+% % [max_val] = max(max(dist))
+% [maxNum, maxIndex] = max(dist(:));
+% [row, col] = ind2sub(size(dist), maxIndex);
+% % plot(points(row,1),points(row,2),'r*');
+% % plot(points(col,1),points(col,2),'r*');
+% maxNum
+
+%% ============= plot
+configs = safe_mc;
+x_prm = configs(:,1);
+y_prm = configs(:,2);
+t_prm = configs(:,3);
+u_prm = cosd(t_prm);
+v_prm = sind(t_prm);
+quiver(x_prm,y_prm,u_prm,v_prm,0.5,'g')
+%% ============= Part 4: Visualizing J(theta_0, theta_1) =============
+% fprintf('Visualizing J(theta_0, theta_1) ...\n')
+%
+% % Grid over which we will calculate J
+% theta0_vals = linspace(-10, 10, 100);
+% theta1_vals = linspace(-1, 4, 100);
+%
+% % initialize J_vals to a matrix of 0's
+% J_vals = zeros(length(theta0_vals), length(theta1_vals));
+%
+% % Fill out J_vals
+% for i = 1:length(theta0_vals)
+%     for j = 1:length(theta1_vals)
+% 	  t = [theta0_vals(i); theta1_vals(j)];
+% 	  J_vals(i,j) = computeCost(X, y, t);
+%     end
+% end
+%
+%
+% % Because of the way meshgrids work in the surf command, we need to
+% % transpose J_vals before calling surf, or else the axes will be flipped
+% J_vals = J_vals';
+% % Surface plot
+% figure;
+% surf(theta0_vals, theta1_vals, J_vals)
+% xlabel('\theta_0'); ylabel('\theta_1');
+%
+% % Contour plot
+% figure;
+% % Plot J_vals as 15 contours spaced logarithmically between 0.01 and 100
+% contour(theta0_vals, theta1_vals, J_vals, logspace(-2, 3, 20))
+% xlabel('\theta_0'); ylabel('\theta_1');
+% hold on;
+% plot(theta(1), theta(2), 'rx', 'MarkerSize', 10, 'LineWidth', 2);
+
+##### SOURCE END #####
+--></body></html>

@@ -2,7 +2,7 @@
 close all
 clear all
 
-load('disaster.mat')
+load('/home/khan/phd_ws/matlab_ws/RTI/logs/disaster.mat')
 
 % % select top five
 % [~, idx]= sort(avg_rti,'descend');
@@ -16,8 +16,8 @@ load('disaster.mat')
 % bar([avg_rti(top_idx) avg_rti(bot_idx)])
 
 % plot selected rti
-idc = [2,3,4,6];
-bar(rti_log(:,idc)'+0.000001)
+idc = [3,4,2,8,6];
+bar(rti_log(:,idc)')
 
 % rti_log = rti_log(:,idc);
 
@@ -52,10 +52,14 @@ bar(rti_log(:,idc)'+0.000001)
 
 
 % label and legend
-xlabel('Road Patch')
-ylabel('RTI')
-legend('Vehicle1', 'Vehicle2', 'Vehicle3','Vehicle4')
+% xlabel('Road Patch')
+% ylabel('RTI')
+% legend('Vehicle1', 'Vehicle2', 'Vehicle3','Vehicle4')
 
+axis([0.5 5.5 0 1])
+yticks([0 0.5 1])
+yticklabels({});
+xticklabels({});
 % Here we preserve the size of the image when we save it.
 width = 8;
 height = 6;
@@ -68,4 +72,4 @@ myfiguresize = [left, bottom, width, height];
 set(gcf,'PaperPosition', myfiguresize);
 
 % Save the file as PNG
-print('/home/khan/phd_ws/matlab_ws/RTI/printables/disaster.png','-dpng','-r150');
+print('/home/khan/phd_ws/matlab_ws/RTI/printables/disaster3.png','-dpng','-r150');

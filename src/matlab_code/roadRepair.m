@@ -1,12 +1,12 @@
-function [ output_args ] = roadRepair( input_args )
+        function [ output_args ] = roadRepair( input_args )
 %Use rti data for road repair analysis
 %   Detailed explanation goes here
 
-adj_dir = '/home/khan/phd_ws/traversability/adjacency/disaster/';
-config_dir =  '/home/khan/phd_ws/traversability/configs/disaster/';
-pointcloud_dir =  '/home/khan/phd_ws/traversability/pointclouds/disaster/';
+adj_dir = '/home/khan/phd_ws/traversability/adjacency/village/';
+config_dir =  '/home/khan/phd_ws/traversability/configs/village/';
+pointcloud_dir =  '/home/khan/phd_ws/traversability/pointclouds/village/';
 
-name_prefix = 'disaster';
+name_prefix = 'village';
 vehicles = ['vehicle1';'vehicle2';'vehicle3';'vehicle4'];
 
 % log data
@@ -16,8 +16,8 @@ rti_log = [];
 for cloud_id=1:6
     mc_log = [];
     for veh_id=1:size(vehicles,1)
-        cloud_id
-        veh_id
+        fprintf(strcat('cloud_id:' , int2str(cloud_id) , '\t veh_id' , int2str(veh_id), '\n'))
+        
         % get vehicle name
         vehicle = vehicles(veh_id,:);
         % load vehicle parameters
@@ -67,6 +67,6 @@ avg_rti = sum(rti_log,1)/size(rti_log,1);
 plot(avg_rti)
 
 % save results
-save('/home/khan/phd_ws/matlab_ws/RTI/logs/disaster.mat','mincut_log','rti_log','avg_rti')
+save('/home/khan/phd_ws/matlab_ws/RTI/logs/village.mat','mincut_log','rti_log','avg_rti')
 end
 

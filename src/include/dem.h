@@ -252,6 +252,9 @@ protected:
 	/** \brief Distance for cluster segregation. */
 	float distance_cluster_;
 
+  /** \brief Threshold for planar road. */
+	float plane_threshold_;
+
 	/** \brief Whether the input cloud is projected. */
 	bool is_projected_;
 

@@ -32,6 +32,7 @@ cloud_project_(),
 cloud_dem_ (),
 point_neighbours_ (0),
 dem_clusters_ (0),
+plane_threshold_ (0.01),
 projected_plane_coeff_ (),
 road_coefficients_()
 {
@@ -79,6 +80,7 @@ pcl::DEM<PointT>::loadParameters ()
 	dimension_y_	=	cf.Value("dem_parameters","dimension_y");
 	distance_max_	=	cf.Value("dem_parameters","distance_max");
 	distance_cluster_	=	cf.Value("dem_parameters","distance_cluster");
+	plane_threshold_	=	cf.Value("dem_parameters","plane_threshold");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +257,6 @@ pcl::DEM<PointT>::getMinMax()
 template <typename PointT> void
 pcl::DEM<PointT>::transformCloud2XYPlane()
 {
-	float planeThreshold = 0.01;
 	pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 	pcl::SACSegmentation<pcl::PointXYZ> seg;
 	pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
@@ -263,7 +264,7 @@ pcl::DEM<PointT>::transformCloud2XYPlane()
 	seg.setModelType (pcl::SACMODEL_PLANE);
 	seg.setMethodType (pcl::SAC_RANSAC);
 	seg.setMaxIterations (100);
-	seg.setDistanceThreshold (planeThreshold);
+	seg.setDistanceThreshold (plane_threshold_);
 	seg.setInputCloud (input_);
 	seg.segment (*inliers, *coefficients);
 	float pCoeffMod = sqrt(pow(coefficients->values[0],2)+pow(coefficients->values[1],2)+pow(coefficients->values[2],2));

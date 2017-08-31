@@ -55,7 +55,7 @@ public:
 
 	using DEM<PointT>::setRoadPlaneCoefficients;
 	using DEM<PointT>::computeDEM;
-	using DEM<PointT>::getDEMVisibilityCloud;	
+	using DEM<PointT>::getDEMVisibilityCloud;
 	using PCLBase <PointT>::initCompute;
 	using PCLBase <PointT>::deinitCompute;
 	//   using DEM<PointT>::cloud_project_;
@@ -147,11 +147,11 @@ public:
 
 	/** \brief Returns dimension of PRT in y direction. */
 	void
-	computePRT ();
+	computeRTI ();
 
 	/** \brief Get the DEM clusters. */
 	virtual void
-	getPRTAdjacencyList (std::vector< std::pair<int,int> >& prm_graph);
+	getRTIAdjacencyList (std::vector< std::pair<int,int> >& prm_graph);
 
 	/** \brief Cloud for visibility of PRT. */
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr
@@ -177,7 +177,7 @@ protected:
 	virtual float
 	config_dist (Eigen::Vector3f qrand, Eigen::Vector4f qnear);
 
-	/** \brief Find new configuration closer to q_rand from q_near. */	
+	/** \brief Find new configuration closer to q_rand from q_near. */
 	virtual Eigen::Vector4f
 	findOptimalConfig (Eigen::Vector3f qrand, Eigen::Vector4f qnear);
 
@@ -207,7 +207,7 @@ protected:
 
 	/** \brief Compute circular motion info of a vehicle config. */
 	virtual Eigen::MatrixXf
-	getConfigCircluarCenters (Eigen::Vector4f config); 
+	getConfigCircluarCenters (Eigen::Vector4f config);
 
 	/** \brief Returns dimension of PRT in y direction. */
 	virtual void
@@ -301,8 +301,8 @@ protected:
 	virtual bool
 	preProcessingPRT();
 
-	virtual inline	 double 
-	pointDistFromPoint (Eigen::Vector3f point_a, Eigen::MatrixXf point_b) 
+	virtual inline	 double
+	pointDistFromPoint (Eigen::Vector3f point_a, Eigen::MatrixXf point_b)
 	{
 		Eigen::Vector3f ab = point_b - point_a;
 		Eigen::Vector3f ab_sqr = ab.cwiseProduct(ab);
@@ -310,8 +310,8 @@ protected:
 		return ab_dist;
 	}
 
-	virtual inline	 double 
-	pointDistFromLine (Eigen::Vector3f point_p, Eigen::MatrixXf point_a, Eigen::MatrixXf point_b) 
+	virtual inline	 double
+	pointDistFromLine (Eigen::Vector3f point_p, Eigen::MatrixXf point_a, Eigen::MatrixXf point_b)
 	{
 		Eigen::Vector3f ab = point_b - point_a;
 		Eigen::Vector3f ap = point_p - point_a;
@@ -327,8 +327,8 @@ protected:
 		//		return p.norm()/d3.norm();
 		return dist;
 	}
-	//	virtual inline Eigen::MatrixXf 
-	//	vehicleBodyLines (Eigen::MatrixXf vehicle_state) 
+	//	virtual inline Eigen::MatrixXf
+	//	vehicleBodyLines (Eigen::MatrixXf vehicle_state)
 	//	{
 	//		Eigen::VectorXf x1 = vehicle_state.row(0).leftCols(4);
 	//		Eigen::Vector4f x2;
@@ -341,7 +341,7 @@ protected:
 	//		Eigen::Vector4f y_diff = y2-y1;
 	//
 	//		Eigen::MatrixXf slopes = vehicle_state.row(1).leftCols(4).rightShift(1)-vehicle_state.row(1).leftCols(4)
-	//	}	
+	//	}
 
 
 
@@ -371,7 +371,7 @@ protected:
 
 	/** \brief Current vehicle id. */
 	std::string vehicle_id_;
-	
+
 	/** \brief Number of configurations in y dimension. */
 	float min_theta_;
 
@@ -427,7 +427,7 @@ protected:
 	float config_neighbour_radius_;
 
 	/** \brief Step size for sub configs between two connected configs in prm. */
-	float prm_step_size_;	
+	float prm_step_size_;
 
 	/** \brief Number of cells in z dimension. */
 	bool is_random_configs_;
@@ -486,4 +486,3 @@ public:
 #include <impl/prt.hpp>
 //#endif
 #endif /* PRT_H_ */
-

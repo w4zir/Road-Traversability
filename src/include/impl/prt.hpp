@@ -77,7 +77,7 @@ pcl::PRT<PointT>::loadParameters ()
 	/*
 	 * Read prm parameters from settings.config file
 	 */
-	ConfigFile cf("/home/khan/phd_ws/rrlab_code/road_ws/data/settings.config");
+	ConfigFile cf("../configs/settings.config");
 	config_x_count_	=	cf.Value("prm_parameters","config_x_count");
 	config_y_count_	=	cf.Value("prm_parameters","config_y_count");
 	config_theta_count_	=	cf.Value("prm_parameters","config_theta_count");
@@ -91,7 +91,7 @@ pcl::PRT<PointT>::loadParameters ()
 	 * Read vehicle parameters from vehicle_parameters.config file
 	 */
 
-	ConfigFile vcf("/home/khan/phd_ws/rrlab_code/road_ws/data/vehicle_parameters.config");
+	ConfigFile vcf("../configs/vehicle_parameters.config");
 
 	vehicle_width_	=	vcf.Value(vehicle_id_,"vehicle_width");
 	vehicle_length_	=	vcf.Value(vehicle_id_,"vehicle_length");
@@ -145,7 +145,7 @@ pcl::PRT<PointT>::setImportConfigsFlag (bool is_import_configs)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> void
-pcl::PRT<PointT>::getPRTAdjacencyList (std::vector< std::pair<int,int> >& prt_graph)
+pcl::PRT<PointT>::getRTIAdjacencyList (std::vector< std::pair<int,int> >& prt_graph)
 {
 	prt_graph = prt_graph_;
 }
@@ -1249,7 +1249,7 @@ pcl::PRT<PointT>::collisionCheckerWithKnownObstacles (Eigen::MatrixXf vehicle_st
 			float tire_dist_from_obs = std::sqrt(std::pow(obstacles_info_(obs_idx,0) - tyre_x,2) + std::pow(obstacles_info_(obs_idx,1) - tyre_y,2));
 			if (tire_dist_from_obs <= (tire_width_/2 + obstacles_info_(obs_idx,2)))
 			{
-				//   std::cout << "tyre collide with obstacle." << std::endl;
+				  // std::cout << "tyre collide with obstacle." << std::endl;
 				return -1;
 			}
 		}
@@ -1287,6 +1287,7 @@ pcl::PRT<PointT>::collisionCheckerWithKnownObstacles (Eigen::MatrixXf vehicle_st
 		// std::cout << "is_vehicle_body_collide:"<< is_vehicle_body_collide << std::endl;
 		if (is_vehicle_body_collide)
 		{
+			// std::cout << "vehicle body collide with positive obstacle"<< std::endl;
 			return -1;
 		}
 
@@ -1911,7 +1912,7 @@ pcl::PRT<PointT>::getClearanceBoundingBoxes (Eigen::Vector3f v_config)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> void
-pcl::PRT<PointT>::computePRT ()
+pcl::PRT<PointT>::computeRTI ()
 {
 	bool computation_is_possible = initCompute ();
 	if ( !computation_is_possible )

@@ -1,4 +1,4 @@
-#include "include/rti.h"
+#include "include/prt.h"
 #include "include/ConfigFile.h"
 
 #include <ctime>
@@ -39,9 +39,9 @@ int main(int argc, char *argv[])
 	ConfigFile vcf("../configs/vehicle_parameters.config");
 	int vehicle_count = vcf.Value("vehicle_info","vehicle_count");
 
-	std::cout << vehicle_count << "\t" << vehicle_count << std::endl;
+	std::cout << "vehicle_count\t" << vehicle_count << std::endl;
 
-	for (int v_idx = 1; v_idx <= vehicle_count; v_idx++)
+	for (int v_idx = 2; v_idx <= vehicle_count; v_idx++)
 	{
 		std::string vehicle_id = "vehicle" + NumberToString(v_idx);
 		std::string pointcloudFolder = (std::string)cf.Value("paths","pointcloud_folder");
@@ -132,10 +132,10 @@ int main(int argc, char *argv[])
 							std::size_t nospace4 = line.find_first_not_of(" ",space3);
 							std::size_t space4 = line.find(" ",nospace4);
 
-							std::string xStr = line.substr(nospace1,space1-1);
-							std::string yStr = line.substr(nospace2,space2-1);
-							std::string rStr = line.substr(nospace3,space3-1);
-							std::string sStr = line.substr(nospace4,space4-1);
+							std::string xStr = line.substr(nospace1,space1-nospace1);
+	            std::string yStr = line.substr(nospace2,space2-nospace2);
+	            std::string rStr = line.substr(nospace3,space3-nospace3);
+	            std::string sStr = line.substr(nospace4,space4-nospace4);
 							float xVal = std::atof(xStr.c_str());
 							float yVal = std::atof(yStr.c_str());
 							float rVal = std::atof(rStr.c_str());
@@ -159,12 +159,12 @@ int main(int argc, char *argv[])
 					proj_plane_coefficients->values[2] = 1.0;
 					proj_plane_coefficients->values[3] = 0;
 
-					pcl::RTI<pcl::PointXYZ> RTIObj;
+					pcl::PRT<pcl::PointXYZ> RTIObj;
 					RTIObj.setVehicleId(vehicle_id);
 					RTIObj.setInputCloud(cloud_in);
 					RTIObj.SetProjectedPlaneCoefficients(proj_plane_coefficients);
 					RTIObj.setRandomConfigsFlag(true);
-					//RTIObj.setObstaclesInfo(obstacles_info);
+					RTIObj.setObstaclesInfo(obstacles_info);
 					RTIObj.computeRTI();
 					std::vector< std::pair<int,int> > RTI_graph;
 					RTIObj.getRTIAdjacencyList(RTI_graph);

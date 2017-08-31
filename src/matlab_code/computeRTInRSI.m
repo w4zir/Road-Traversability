@@ -1,4 +1,4 @@
-        function [ output_args ] = roadRepair( input_args )
+function [ output_args ] = computeRTInRSI( input_args )
 %Use rti data for road repair analysis
 %   Detailed explanation goes here
 
@@ -11,17 +11,20 @@ vehicles = ['vehicle1';'vehicle2';'vehicle3';'vehicle4'];
 
 % log data
 mincut_log = [];
+safecut_log = [];
 rti_log = [];
+rsi_log = [];
 
 for cloud_id=1:6
     mc_log = [];
+    smc_log = [];
     for veh_id=1:size(vehicles,1)
-        fprintf(strcat('cloud_id:' , int2str(cloud_id) , '\t veh_id' , int2str(veh_id), '\n'))
-        
+        cloud_id
+        veh_id
         % get vehicle name
         vehicle = vehicles(veh_id,:);
         % load vehicle parameters
-        run('parameters_kitti.m')
+        run('parameters.m')
         % read files
         adjFile = strcat(adj_dir,vehicles(veh_id,:),'/',name_prefix,int2str(cloud_id),'_adj');
         % adjFile
@@ -32,7 +35,7 @@ for cloud_id=1:6
         %         obstacles = importdata(obsFile,' ');
         
         % read start, goal and total configs
-        startNodes = find(configs(:,2) < min_y+2 & configs(:,3) == 90);
+%         startNodes = find(configs(:,2) < min_y+2 & configs(:,3) == 90);
         startNodes = find(configs(:,2) < min_y+1.5);
         goalNodes = find(configs(:,2) > max_y-1.5);
         total_config = size(configs,1);
@@ -54,33 +57,36 @@ for cloud_id=1:6
             mincut = size(minCutNodes,1);
             mc_log = [mc_log; mincut];
             
-            % compute safe mincut
-             mc_configs = minCutLog(idx,1:4);
-            if (size(mc_configs,1) > 1)
-                clusters = clusterdata(mc_configs(:,2:3),'criterion','distance','cutoff',0.7);
-                [c_freq,c_id]=hist(clusters,unique(clusters));
-                [~,max_c_idx] = max(c_freq);
-                max_c_id = c_id(max_c_idx);
-                cidx = find(clusters==max_c_id);
-
-                safeMincut = mc_configs(cidx,:);
+            if (mincut > 1)
+            mc_configs = configs(minCutNodes(:,1),:)
+            clusters = clusterdata(mc_configs(:,1:2),'criterion','distance','cutoff',0.7);
+            [c_freq,c_id]=hist(clusters,unique(clusters))
+            [~,max_c_idx] = max(c_freq);
+            max_c_id = c_id(max_c_idx);
+            idx = find(clusters==max_c_id);
+            smc_log = [smc_log; numel(idx)]
             else
-                
+                smc_log = [smc_log; 0]
             end
         else
             mc_log = [mc_log; 0];
+	    smc_log = [smc_log; 0]
         end
     end
     mincut_log = [mincut_log mc_log];
+    safecut_log = [safecut_log smc_log];
 end
 max_val = max(mincut_log,[],2);
 rti_log = mincut_log./repmat(max_val,1,size(mincut_log,2));
+
+max_safe_val = max(safecut_log,[],2);
+rsi_log = safecut_log./repmat(max_safe_val,1,size(safecut_log,2));
 
 % plot commulative rti
 avg_rti = sum(rti_log,1)/size(rti_log,1);
 plot(avg_rti)
 
 % save results
-save('/home/khan/phd_ws/matlab_ws/RTI/logs/village2.mat','mincut_log','rti_log','avg_rti')
+save('/home/khan/phd_ws/matlab_ws/RTI/logs/village_2.mat','mincut_log','rti_log','avg_rti','safecut_log','rsi_log')
 end
 

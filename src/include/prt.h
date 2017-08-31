@@ -81,6 +81,10 @@ public:
 	virtual std::string
 	getVehicleId () const;
 
+	/** \brief Check dem clusters under tyre for collision with vehicle. */
+	virtual void
+	setConfigPercentage(float perc);
+
 	/** \brief Set current vehicle id. */
 	virtual void
 	setVehicleId (std::string vehicle_id);
@@ -416,6 +420,9 @@ protected:
 
 	/** \brief Goal tolerance. */
 	float goal_tolerance_;
+
+	/** \brief config_percentage */
+	float config_perc_;
 
 	/** \brief Goal biad probability. */
 	float goal_bias_;

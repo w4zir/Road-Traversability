@@ -38,6 +38,7 @@ sub_config_count_(2), //2
 vehicle_safety_dist_ (0),
 goal_tolerance_ (1.0),
 goal_bias_ (0.05),
+config_perc_ (100),
 vehicle_configs_ (),
 config_neighbours_ (),
 config_collision_status_ (),
@@ -114,6 +115,13 @@ template <typename PointT> void
 pcl::PRT<PointT>::setVehicleId (std::string vehicle_id)
 {
 	vehicle_id_ = vehicle_id;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <typename PointT> void
+pcl::PRT<PointT>::setConfigPercentage (float perc)
+{
+	config_perc_ = perc;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> bool
@@ -989,7 +997,7 @@ pcl::PRT<PointT>::generateQuasiRandomConfigurations ()
 template <typename PointT> void
 pcl::PRT<PointT>::generateRandomConfigurations ()
 {
-	int config_count = config_x_count_ * config_y_count_ * config_theta_count_;
+	int config_count = (int)config_x_count_ * config_y_count_ * config_theta_count_*config_perc_/100;
 	vehicle_configs_ = Eigen::MatrixXf::Constant(config_count,4,-1000);
 
 	for (int i_idx=0; i_idx < config_count; i_idx++)

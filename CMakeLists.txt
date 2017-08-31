@@ -16,3 +16,6 @@ target_link_libraries (road_rti ${PCL_LIBRARIES})
 
 add_executable (add_obstacle_road src/add_obstacle_road.cpp)
 target_link_libraries (add_obstacle_road ${PCL_LIBRARIES})
+
+add_executable (rti_analysis src/rti_analysis.cpp)
+target_link_libraries (rti_analysis ${PCL_LIBRARIES})

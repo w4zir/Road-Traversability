@@ -10,9 +10,9 @@ vehicles = ['vehicle1'; 'vehicle2'; 'vehicle3';'vehicle4';'vehicle5'];
 
 %% load data from files
 folder = 'analysis_new';
-configDirectory =  '/home/khan/Dropbox/Phd/implementations/traversability/configs/tmp/';
-adjDirectory = '/home/khan//Dropbox/Phd/implementations/traversability/adjacency/tmp/';
-% obsDirectory =  '/home/khan/phd_ws/traversability/pointclouds/';
+configDirectory =  '/home/khan/phd_ws/traversability/configs/';
+adjDirectory = '/home/khan/phd_ws/traversability/adjacency/';
+obsDirectory =  '/home/khan/phd_ws/traversability/pointclouds/';
 file_prefix = 'road_rti';
 
 x_min = -3;
@@ -37,10 +37,10 @@ goalNodesLog = [];
 
 fileNameAdj = [];
 for v_id=2:2%size(vehicles,1)
-    for conf_id=1:3
-        for file_id=1:2
-            configFile = strcat(configDirectory,file_prefix,int2str(file_id),'_',int2str(conf_id),'_100_conf');
-            adjFile = strcat(adjDirectory,file_prefix,int2str(file_id),'_',int2str(conf_id),'_100_adj');
+    for conf_id=1:25
+        for file_id=1:60
+            configFile = strcat(configDirectory,folder,'/',vehicles(v_id,:),'/',file_prefix,int2str(file_id),'_',int2str(conf_id),'_100_conf');
+            adjFile = strcat(adjDirectory,folder,'/',vehicles(v_id,:),'/',file_prefix,int2str(file_id),'_',int2str(conf_id),'_100_adj');
               Ds = importdata(adjFile,' ');
             configs = importdata(configFile,' ');
             %             obstacles = importdata(obsFile,' ');
@@ -61,13 +61,13 @@ for v_id=2:2%size(vehicles,1)
             end
             
             
-            for perc=100:-25:25
+            for perc=90:-10:10
             fprintf ('v_id: %d | conf_id: %d | file_id: %d | perc: %d \n', v_id,conf_id,file_id,perc)
             
              %             obsFile = strcat(obsDirectory,folder,'/',file_prefix,int2str(file_id),'_obs');
             % ==================== Get random nodes ====================
         rand_nodes_count = round((100-perc)*total_configs/100);
-        rand_nodes = randperm(total_configs,rand_nodes_count);
+        rand_nodes = randi(total_configs,rand_nodes_count,1);
         
          % =============== remove nodes =======
             idx = ismember(Ds(:,1:2),rand_nodes);
@@ -136,7 +136,7 @@ end
 %   save('/home/khan/phd_ws/matlab_ws/RTI/logs/road_repair.mat','safeMincutCount','mc_count','safeMincutLog','mc_log','connCompsLog','startNodesLog','goalNodesLog','configsLog','adjacencyLog','obstacleLog','-v7.3')
 % figure
 % bar(mc_count);
-save('/home/khan/phd_ws/matlab_ws/RTI/logs/analysis_new_node_rem3.mat','mc_count','-v7.3')
+save('/home/khan/phd_ws/matlab_ws/RTI/logs/analysis_new_node_rem.mat','mc_count','-v7.3')
 
 end
 

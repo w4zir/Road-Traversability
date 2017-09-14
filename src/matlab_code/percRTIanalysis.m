@@ -9,11 +9,11 @@ wheelbase = 1.78;
 vehicle_width = 1.58;
 track = 1.3;
 
-pc_count = 60;
-random_configs = 25;
+pc_count = 2;
+random_configs = 3;
 %% ==================== Part 2: Load Data ====================
-load('/home/khan/Dropbox/Phd/implementations/matlab_ws/RTI/logs/perc_rti_analysis2.mat');
-
+load('/home/khan/phd_ws/matlab_ws/RTI/logs/analysis_new_node_rem3.mat');
+% load('/home/khan/Dropbox/Phd/implementations/traversability/mat_logs/analysis_new_node_rem3.mat');
 %% ==================== Part 3: Analyze randomness effect on nodes count =============
 mean_mc_log = [];
 mean_rti_log = [];
@@ -21,9 +21,9 @@ std_mc_log = [];
 std_rti_log = [];
 rti_log = [];
 
-for perc=0:10:90
-    idx = find(mincutCount(:,4) == perc);
-    data = mincutCount(idx);
+for perc=100:-25:25
+    idx = find(mc_count(:,5) == perc);
+    data = mc_count(idx,1);
     mc_data = reshape(data(:,1), pc_count, random_configs);
     [z_mc,m_mc,std_mc] = zscore(mc_data,[],2);
     %     m_mc = mean(mc_data,2);
@@ -82,9 +82,9 @@ end
 %==================== plot z-score =========================
 data = z_log(2:end,:);
 total = numel(data);
-first_std = length(find(abs(data(:)) <= 1))/total;
-sec_std = length(find(abs(data(:)) <= 2))/total;
-third_std = length(find(abs(data(:)) <= 3))/total;
+first_std = length(find(abs(data(:)) <= 1))/total
+sec_std = length(find(abs(data(:)) <= 2))/total
+third_std = length(find(abs(data(:)) <= 3))/total
 figure
 subplot(1,3,1)
 histfit(data(:))

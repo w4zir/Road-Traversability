@@ -80,8 +80,9 @@ for (int perc = 100; perc >= 10; perc-=10)
 							std::string fNamePRM = entPRM->d_name;
 							if(fNamePRM.find("_adj")!=std::string::npos) {
 								std::string fProcessed = fNamePRM.substr(0,fNamePRM.find("_adj"));
-								std::string f2Process = fName.substr(0,fName.find(".pcd"));
-								if (f2Process.compare(fProcessed)==0) {
+                std::stringstream f2Process;
+								f2Process << fName.substr(0,fName.find(".pcd")) << "_" << conf_id << "_" << perc;
+								if (f2Process.str().compare(fProcessed)==0) {
 									fileProcessed = true;
 									std::cout <<"file processed already"<<f2Process<<"\t"<<fProcessed<<std::endl;
 									break;
@@ -96,7 +97,8 @@ for (int perc = 100; perc >= 10; perc-=10)
 
 					//				double cpu1  = get_cpu_time();
 					std::cout << endl<<"reading pointcloud file -------------------------------------\t"<<fName.c_str() << std::endl;
-					std::stringstream readFile;
+          std::cout << vehicle_id << "\n" << conf_id << "\n" << perc << "\n";
+          std::stringstream readFile;
 					readFile << pointcloudFolder.c_str() <<fName.substr(0,fName.find(".pcd")) << ".pcd";
 					pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZ>);
 					reader.read (readFile.str(), *cloud_in);

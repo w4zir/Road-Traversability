@@ -591,10 +591,10 @@ pcl::RTI<PointT>::findConfigsConnectivity (Eigen::Vector4f c_config, Eigen::Vect
 
 	// check that there is a continuous differentiable and fixed curvature arc to neighbor
 	float n_dist = std::sqrt(std::pow(c_config(0)- n_config(0),2) + std::pow(c_config(1)- n_config(1),2));
-	if (n_dist < (config_neighbour_radius_ - 0.5))
-	{
-		return -1;
-	}
+	// if (n_dist < (config_neighbour_radius_ - 0.5))
+	// {
+	// 	return -1;
+	// }
 	//    if (n_dist > config_neighbour_radius_)
 	//    {
 	//        return -1;

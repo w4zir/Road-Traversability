@@ -1,4 +1,4 @@
-#include "include/prt.h"
+#include "include/rti.h"
 #include "include/ConfigFile.h"
 
 #include <ctime>
@@ -159,12 +159,12 @@ int main(int argc, char *argv[])
 					proj_plane_coefficients->values[2] = 1.0;
 					proj_plane_coefficients->values[3] = 0;
 
-					pcl::PRT<pcl::PointXYZ> RTIObj;
+					pcl::RTI<pcl::PointXYZ> RTIObj;
 					RTIObj.setVehicleId(vehicle_id);
 					RTIObj.setInputCloud(cloud_in);
 					RTIObj.SetProjectedPlaneCoefficients(proj_plane_coefficients);
 					RTIObj.setRandomConfigsFlag(true);
-					RTIObj.setObstaclesInfo(obstacles_info);
+				//	RTIObj.setObstaclesInfo(obstacles_info);
 					RTIObj.computeRTI();
 					std::vector< std::pair<int,int> > RTI_graph;
 					RTIObj.getRTIAdjacencyList(RTI_graph);

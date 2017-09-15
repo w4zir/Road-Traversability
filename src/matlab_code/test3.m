@@ -1,14 +1,9 @@
-d1 = 1.0;
-dx = 0.5;
-L = 2;
-theta = 120*pi/180;
-% alpha = 22*pi/180;
+load('/home/khan/Dropbox/Phd/implementations/traversability/mat_logs/analysis_new.mat');
 
+mc_tmp = mc_count;
+idx = find(mc_count(:,5) == 100);
+mc_100 = mc_count(idx,:);
 
-% d2*(cos(theta)-cos(theta+d2*tan(alpha)/L))/L - d1
-
-syms d2 alpha;
-[d2 alpha] = solve((L/tan(alpha))*(cos(theta)-cos(theta+d2*tan(alpha)/L)) == d1,(L/tan(alpha))*(sin(theta)-sin(theta+d2*tan(alpha)/L)) == dx);
-%[d2 alpha] = solve(beta == d2*tan(alpha)/L, d2*(cos(theta)-cos(theta+beta))/beta == d1,d2*(sin(theta)-sin(theta+beta))/beta == dx);
-
-% simplify(d2)
+load('/home/khan/Dropbox/Phd/implementations/traversability/mat_logs/analysis_new_node_rem.mat');
+mc_count = [mc_count; mc_100];
+save('/home/khan/Dropbox/Phd/implementations/traversability/mat_logs/analysis_new_node_rem2.mat','mc_count');

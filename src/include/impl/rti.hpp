@@ -560,7 +560,50 @@ pcl::RTI<PointT>::validateConfigurations ()
 		if(safety_flag == 1)
 		{
 			config_collision_status_[c_idx] = 1;
-			float config_clearance_value = 0;//computeConfigClearance(vehicle_configs_.row(c_idx).head(3), vehicle_state);
+			float config_clearance_value = -1;//computeConfigClearance(vehicle_configs_.row(c_idx).head(3), vehicle_state);
+			config_clearance_ [c_idx] = config_clearance_value;
+			//  std::cout << "config_clearance : " << config_clearance_ [c_idx] << std::endl;
+			valid_count++;
+		} else
+		{
+			config_collision_status_[c_idx] = 0;
+			config_clearance_ [c_idx] = 0;
+			invalid_count++;
+		}
+		//  std::cout << "VALIDATED CONFIG: " << counter << std::endl;
+		counter++;
+	}
+
+	//	default_dem_cells_ = tmp_dem_cells.leftCols(cell_counter);
+	std::cout <<"valid:" << valid_count << "\t invalid:" << invalid_count <<"\t counter:" << counter << std::endl;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <typename PointT> void
+pcl::RTI<PointT>::clearanceUsingInvalidConfigs ()
+{
+	std::cout << "vehicle_configs_ rows: " << vehicle_configs_.rows() << "\t cols" << vehicle_configs_.cols() << std::endl;
+	int config_count = vehicle_configs_.rows(); //config_x_count_ * config_y_count_ * config_theta_count_;
+	config_collision_status_.resize(config_count,-1);
+	config_clearance_.resize(config_count,-1);
+	int valid_count=0;
+	int invalid_count=0;
+	int counter=0;
+	for (int c_idx=0; c_idx < config_count; c_idx++)
+	{
+		// std::cout << "vehicle config:\t" << c_idx << std::endl;
+		Eigen::MatrixXf vehicle_state = getVehicleState(vehicle_configs_.row(c_idx).head(3));
+		//		Eigen::MatrixXf vehicle_state = getVehicleStateWithClearance(vehicle_configs_.row(c_idx).head(3));
+	//	std::cout << "vehicle config: " << vehicle_configs_.row(c_idx).head(3) << std::endl;
+		// std::cout << "vehicle state: " << vehicle_state << std::endl;
+		//		float state_min_x = vehicle_state.row(1).leftCols(4).minCoeff();
+		int safety_flag = collisionAndSafetyChecker(vehicle_state);
+		// int safety_flag = collisionCheckerWithKnownObstacles(vehicle_state);
+	//	std::cout << "safety_flag: " << safety_flag << std::endl;
+		if(safety_flag == 1)
+		{
+			config_collision_status_[c_idx] = 1;
+			float config_clearance_value = -1;//computeConfigClearance(vehicle_configs_.row(c_idx).head(3), vehicle_state);
 			config_clearance_ [c_idx] = config_clearance_value;
 			//  std::cout << "config_clearance : " << config_clearance_ [c_idx] << std::endl;
 			valid_count++;

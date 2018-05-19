@@ -6,8 +6,8 @@ close all
 %% vehicle info
 x_min = -3;
 x_max = 3;
-y_min = -5;
-y_max = 5;
+y_min = -10;
+y_max = 10;
 x_config_count = 25;
 y_config_count = 41;
 theta_config_count = 7;
@@ -17,9 +17,9 @@ costMatLog = [];
 start_n_goal_nodes_factore = 1;
 
 %% load data from files
-adjDirectory = '/home/khan/phd_ws/traversability/adjacency/kitti_117/vehicle4/road_';
-configDirectory =  '/home/khan/phd_ws/traversability/configs/kitti_117/vehicle4/road_';
-file_id = 102;
+adjDirectory = '/home/az/git_repos/phd/road-traversability/data/adjacency/clearance2/vehicle2/clear';
+configDirectory =  '/home/az/git_repos/phd/road-traversability/data/configurations/clearance2/vehicle2/clear';
+file_id = 15;
 adjFile = strcat(adjDirectory,int2str(file_id),'_adj');
 configFile = strcat(configDirectory,int2str(file_id),'_conf');
 

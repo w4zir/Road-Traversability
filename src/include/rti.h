@@ -215,6 +215,10 @@ protected:
 	virtual void
 	validateConfigurations ();
 
+	/** \brief Returns dimension of RTI in y direction. */
+	virtual void
+	clearanceUsingInvalidConfigs ();
+
 	/** \brief Check whether two configs are reachable or not. */
 	virtual bool
 	findConfigsConnectivity (Eigen::Vector4f c_config, Eigen::Vector4f n_config, Eigen::MatrixXf config_circles);
@@ -325,6 +329,15 @@ protected:
 		//		return p.norm()/d3.norm();
 		return dist;
 	}
+
+	virtual inline	 float
+	computeConfigDistance (Eigen::Vector3f config_a, Eigen::Vector3f config_b)
+	{
+		Eigen::Vector3f diff = config_b - config_a;
+		float dist = std::sqrt(std::pow(diff[0],2) + std::pow(diff[1],2) + 10*std::pow(diff[2]*PI_/(float)180,2));
+		return dist;
+	}
+
 	//	virtual inline Eigen::MatrixXf
 	//	vehicleBodyLines (Eigen::MatrixXf vehicle_state)
 	//	{

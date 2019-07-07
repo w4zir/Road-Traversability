@@ -16,9 +16,9 @@ costMatLog = [];
 start_n_goal_nodes_factore = 1;
 
 %% load data from files
-adjDirectory = '/home/khan/git_repos/phd/road-traversability/data/adjacency/clearance2/vehicle2/clear';
-configDirectory =  '/home/khan/git_repos/phd/road-traversability/data/configurations/clearance2/vehicle2/clear';
-file_id = 9;
+adjDirectory = '/home/az/git_repos/phd/road-traversability/data/adjacency/clearance3/vehicle2/clear';
+configDirectory =  '/home/az/git_repos/phd/road-traversability/data/configurations/clearance3/vehicle2/clear';
+file_id = 1;
 adjFile = strcat(adjDirectory,int2str(file_id),'_adj');
 configFile = strcat(configDirectory,int2str(file_id),'_conf');
 

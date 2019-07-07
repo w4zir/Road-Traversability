@@ -199,7 +199,11 @@ protected:
 	virtual void
 	findConfigNeighbours ();
 
-	/** \brief find configs neighbor index. */
+	/** \brief Basic version of computing sub-configs between current and neighbor config. */
+	virtual Eigen::MatrixXf
+	getNeighborSubConfigsBasic(Eigen::Vector4f c_config, Eigen::Vector4f n_config);
+
+	/** \brief Computing sub-configs between current and neighbor config. */
 	virtual Eigen::MatrixXf
 	getNeighborSubConfigs(Eigen::Vector4f c_config, Eigen::Vector4f n_config, float neighbor_ratio);
 
@@ -218,6 +222,10 @@ protected:
 	/** \brief Returns dimension of RTI in y direction. */
 	virtual void
 	clearanceUsingInvalidConfigs ();
+
+	/** \brief Basic version of checking whether two configs are reachable or not. */
+	virtual float
+	findConfigsConnectivityBasic (Eigen::Vector4f c_config, Eigen::Vector4f n_config);
 
 	/** \brief Check whether two configs are reachable or not. */
 	virtual bool
@@ -243,7 +251,7 @@ protected:
 	virtual bool
 	collisionChecker(Eigen::MatrixXf vehicle_state);
 
-	/** \brief Generate all vehicle configurations. */
+	/** \brief Collision checker for vehicle state. */
 	virtual int
 	collisionAndSafetyChecker(Eigen::MatrixXf vehicle_state);
 

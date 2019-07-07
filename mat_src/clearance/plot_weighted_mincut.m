@@ -27,31 +27,32 @@ valid_idx = find(configs(:,5)==1);
 valid = configs(valid_idx,:);
 invalid_idx = find(configs(:,5)==0);
 invalid = configs(invalid_idx,:);
-plot(valid(:,1),valid(:,2),'g.');
-plot(invalid(:,1),invalid(:,2),'r.');
+plot(valid(:,1),valid(:,2),'bo','MarkerFaceColor','b');
+plot(invalid(:,1),invalid(:,2),'ro','MarkerFaceColor','r');
 
 mc_x = configs(minCutNodes(:,1),1);
 mc_y = configs(minCutNodes(:,1),2);
-plot(mc_x,mc_y,'s','MarkerSize',7,'MarkerFaceColor','g');
+plot(mc_x,mc_y,'gs','MarkerSize',7,'MarkerFaceColor','g');
 
-plot(configs(startNodes,1),configs(startNodes,2),'bs');
-plot(configs(goalNodes,1),configs(goalNodes,2),'ks');
+plot(configs(startNodes,1),configs(startNodes,2),'bs','MarkerSize',7);
+plot(configs(goalNodes,1),configs(goalNodes,2),'ks','MarkerSize',7);
 
-legend('Configs Connection', 'Valid Configs', 'Invalid Configs', 'Mincut Configs', 'Start Configs', 'Goal Configs')
+% legend('Configs Connection', 'Valid Configs', 'Invalid Configs', 'Mincut Configs', 'Start Configs', 'Goal Configs')
 xlabel('Width')
 ylabel('Length')
 
 
-% calculate and plot safemincut
-mc_configs = configs(minCutNodes(:,1),:);
-clusters = clusterdata(mc_configs(:,1:2),'criterion','distance','cutoff',0.4);
-[c_freq,c_id]=hist(clusters,unique(clusters));
-[~,max_c_idx] = max(c_freq);
-max_c_id = c_id(max_c_idx);
-cidx = find(clusters==max_c_id);
-smc_idx = minCutNodes(cidx,1);
-safeMincut = configs(smc_idx,:);
 
-smc_x = safeMincut(:,1);
-smc_y = safeMincut(:,2);
-plot(smc_x,smc_y,'s','MarkerSize',7,'MarkerEdgeColor','k','MarkerFaceColor','g');
+% calculate and plot safemincut
+% mc_configs = configs(minCutNodes(:,1),:);
+% clusters = clusterdata(mc_configs(:,1:2),'criterion','distance','cutoff',0.4);
+% [c_freq,c_id]=hist(clusters,unique(clusters));
+% [~,max_c_idx] = max(c_freq);
+% max_c_id = c_id(max_c_idx);
+% cidx = find(clusters==max_c_id);
+% smc_idx = minCutNodes(cidx,1);
+% safeMincut = configs(smc_idx,:);
+
+% smc_x = safeMincut(:,1);
+% smc_y = safeMincut(:,2);
+% plot(smc_x,smc_y,'s','MarkerSize',7,'MarkerEdgeColor','k','MarkerFaceColor','g');

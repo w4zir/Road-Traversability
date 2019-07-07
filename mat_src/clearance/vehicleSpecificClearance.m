@@ -8,7 +8,7 @@ vehicles = ['vehicle1';'vehicle2';'vehicle3';'vehicle4';'vehicle5' ];
 
 
 %% ==================== Part 2: Compute Clearance Using Known Line ====================
-load('clear.mat');
+load('clear4.mat');
 
 frame_count = 12;%max(safeMincutCount(:,2));
 

@@ -53,7 +53,7 @@ std::istringstream (argv[13]) >> tz;
 	std::cout << "Starting process." 	<< std::endl;
 
 	std::stringstream inStream;
-	inStream << "/home/khan/phd_ws/traversability/pointclouds/disaster2/"<<inFile.c_str();
+	inStream << inFile.c_str();
 	reader.read (inStream.str(), *cloud_in);
 	std::cout << "Points in cloud before obstacle addition: " << cloud_in->points.size() << std::endl;
 
@@ -104,7 +104,7 @@ std::istringstream (argv[13]) >> tz;
 	*cloud_op += *transformed_cloud;
 
 	std::stringstream opStream;
-	opStream << "/home/khan/phd_ws/traversability/pointclouds/disaster2/"<<opFile.c_str();
+	opStream << "/home/az/git_repos/phd/road-traversability/data/pointclouds/"<<opFile.c_str();
 	writer.write<pcl::PointXYZRGB> (opStream.str(), *cloud_op, false);
 
 	//	pcl::PointCloud<pcl::PointXYZ>::Ptr dem_cloud (new pcl::PointCloud<pcl::PointXYZ>);

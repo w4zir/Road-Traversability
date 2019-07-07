@@ -4,12 +4,12 @@ function [ output_args ] = plotMinCut( input_args )
 close all
 
 %% vehicle info
-x_min = -3;
-x_max = 3;
-y_min = -10;
-y_max = 10;
+x_min = -2.6;
+x_max = 2.6;
+y_min = -7.5;
+y_max = 7.5;
 x_config_count = 25;
-y_config_count = 41;
+y_config_count = 81;
 theta_config_count = 7;
 costLog = [];
 costMatLog = [];
@@ -17,9 +17,9 @@ costMatLog = [];
 start_n_goal_nodes_factore = 1;
 
 %% load data from files
-adjDirectory = '/home/az/git_repos/phd/road-traversability/data/adjacency/clearance2/vehicle2/clear';
-configDirectory =  '/home/az/git_repos/phd/road-traversability/data/configurations/clearance2/vehicle2/clear';
-file_id = 15;
+adjDirectory = '/home/az/git_repos/phd/road-traversability/data/adjacency/clearance/vehicle2/clear';
+configDirectory =  '/home/az/git_repos/phd/road-traversability/data/configurations/clearance/vehicle2/clear';
+file_id = 9;
 adjFile = strcat(adjDirectory,int2str(file_id),'_adj');
 configFile = strcat(configDirectory,int2str(file_id),'_conf');
 
@@ -70,24 +70,41 @@ plot(mc_x,mc_y,'s','MarkerSize',7,'MarkerFaceColor','g');
 plot(configs(startNodes,1),configs(startNodes,2),'bs');
 plot(configs(goalNodes,1),configs(goalNodes,2),'ks');
 
-legend('Configs Connection', 'Valid Configs', 'Invalid Configs', 'Mincut Configs', 'Start Configs', 'Goal Configs')
-xlabel('Width')
-ylabel('Length')
-
 
 % calculate and plot safemincut
 mc_configs = configs(minCutNodes(:,1),:);
-clusters = clusterdata(mc_configs(:,1:2),'criterion','distance','cutoff',0.4);
+clusters = clusterdata(mc_configs(:,1:2),'criterion','distance','cutoff',0.25);
 [c_freq,c_id]=hist(clusters,unique(clusters));
 [~,max_c_idx] = max(c_freq);
 max_c_id = c_id(max_c_idx);
 cidx = find(clusters==max_c_id);
 smc_idx = minCutNodes(cidx,1);
 safeMincut = configs(smc_idx,:);
+size(safeMincut)
 
 smc_x = safeMincut(:,1);
 smc_y = safeMincut(:,2);
-plot(smc_x,smc_y,'s','MarkerSize',7,'MarkerEdgeColor','k','MarkerFaceColor','g');
+plot(smc_x,smc_y,'s','MarkerSize',7,'MarkerEdgeColor','k','MarkerFaceColor','r');
+eb5h2
+
+% legend('Configs Connection', 'Valid Configs', 'Invalid Configs', 'Mincut Configs', 'Start Configs', 'Goal Configs', 'Safe Mincut Configs')
+% xlabel('Width')
+% ylabel('Length')
+
+axis off
+% Here we preserve the size of the image when we save it.
+width = 8;
+height = 10;
+set(gcf,'InvertHardcopy','on');
+set(gcf,'PaperUnits', 'inches');
+papersize = get(gcf, 'PaperSize');
+left = (papersize(1)- width)/2;
+bottom = (papersize(2)- height)/2;
+myfiguresize = [left, bottom, width, height];
+set(gcf,'PaperPosition', myfiguresize);
+
+% Save the file as PNG
+% print('rti4','-dpng','-r150');
 
 %% load data from mat files
 % load('road_rsi_quasi_01.mat');

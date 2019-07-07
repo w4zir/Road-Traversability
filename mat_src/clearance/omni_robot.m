@@ -2,14 +2,16 @@
 close all
 clear all
 
-x_min = -3
-x_max = 3
-y_min = -5
-y_max = 5
-road_x_min = -2.5
-road_x_max = 2.5
-neighbor_dist = 0.5
-config_count = 2000
+x_min = -5.5
+x_max = 5.5
+y_min = -5.5
+y_max = 5.5
+road_x_min = -5
+road_x_max = 5
+road_y_min = -5
+road_y_max = 5
+neighbor_dist = 1
+config_count = 4000
 
 % generate obstacles
 obs = generate_obstacles(x_min,x_max,y_min,y_max,4);

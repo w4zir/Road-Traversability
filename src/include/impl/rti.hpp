@@ -430,6 +430,54 @@ pcl::RTI<PointT>::findConfigNeighbours ()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> Eigen::MatrixXf
+pcl::RTI<PointT>::getNeighborSubConfigsBasic(Eigen::Vector4f c_config, Eigen::Vector4f n_config)
+{
+	/*
+	 * loop untill reach neighbor
+	 */
+	//	std::cout << "c_config:" << c_config.transpose() << "\t n_config:" << n_config.transpose() << "\t neighbor_ratio" << neighbor_ratio << std::endl;
+	Eigen::MatrixXf sub_configs_temp = Eigen::MatrixXf::Constant(50,3,-1000);
+	float phi = fmod(((n_config(2)-c_config(2))+540),360)-180;  //-MAX_PHI_ + (2*MAX_PHI_)*neighbor_ratio;
+	float radius_n = wheelbase_/tan(phi*PI_/(float)180);
+	float beta = 180*((prm_step_size_*tan(phi*PI_/(float)180))/wheelbase_)/PI_;
+	bool neighbor_reached = false;
+	Eigen::Vector3f config = c_config.head(3);
+	int index = 0;
+	float optimal_dist = config_neighbour_radius_; // start with max neighbor distance
+	for(;;)
+	{
+		float xn = -1;
+		float yn = -1;
+		if (std::abs(beta) < 0.001)
+		{
+			xn = config(0) + prm_step_size_*(cos(PI_*config(2)/180));
+			yn = config(1) + prm_step_size_*(sin(PI_*config(2)/180));
+		} else
+		{
+			xn = config(0) + (sin(PI_*(config(2)+beta)/180) - sin(PI_*config(2)/180))*radius_n;
+			yn = config(1) + (cos(PI_*config(2)/180) - cos(PI_*(config(2)+beta)/180))*radius_n;
+		}
+		float tn = config(2) + beta;
+		config = Eigen::Vector3f(xn,yn,tn);
+		float sub_2_n_dist = std::sqrt(std::pow(config(0)- n_config(0),2) + std::pow(config(1)- n_config(1),2));
+		sub_configs_temp.row(index) = config;
+			//	std::cout << "sub config:" << config.transpose() << "\t sub config counter:" << index << "\t sub_2_n_dist:" << sub_2_n_dist << "\t rows:" << sub_configs_temp.rows()<< std::endl;
+		index++;
+		/*
+		* Run untill sub_config to the neighbor  distance is either less than step_size or it start increasing again
+		*/
+		if (sub_2_n_dist < prm_step_size_ || sub_2_n_dist > optimal_dist)
+		{
+			//			std::cout << "sub_configs_temp.topRows(index):" << sub_configs_temp.topRows(index).transpose() << std::endl;
+			Eigen::MatrixXf sub_configs = sub_configs_temp.topRows(index);
+			return sub_configs;
+		}
+		optimal_dist = sub_2_n_dist;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <typename PointT> Eigen::MatrixXf
 pcl::RTI<PointT>::getNeighborSubConfigs(Eigen::Vector4f c_config, Eigen::Vector4f n_config, float neighbor_ratio)
 {
 	/*
@@ -611,6 +659,96 @@ pcl::RTI<PointT>::clearanceUsingInvalidConfigs ()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> float
+pcl::RTI<PointT>::findConfigsConnectivityBasic (Eigen::Vector4f c_config, Eigen::Vector4f n_config)
+{
+	// neighbors ahead of the config
+	if(c_config(1) >= n_config(1))
+	{
+		//		std::cout <<"neighbor config has lower y value."<< std::endl;
+		return -1;
+	}
+
+	// check that there is a continuous differentiable and fixed curvature arc to neighbor
+	float n_dist = std::sqrt(std::pow(c_config(0)- n_config(0),2) + std::pow(c_config(1)- n_config(1),2));
+	// if (n_dist < (config_neighbour_radius_ - 0.5))
+	// {
+	// 	return -1;
+	// }
+	//    if (n_dist > config_neighbour_radius_)
+	//    {
+	//        return -1;
+	//    }
+
+	/*
+	 * Find pose while taking right turn with maximum turning angle.
+	 */
+	float alpha_min = -40;
+	float radius_n = wheelbase_/tan(alpha_min*PI_/(float)180);
+	float beta = 180*(n_dist/radius_n)/PI_;
+	float xn = c_config(0) + (sin(PI_*(c_config(2)+beta)/180) - sin(PI_*c_config(2)/180))*radius_n;
+	float yn = c_config(1) + (cos(PI_*c_config(2)/180) - cos(PI_*(c_config(2)+beta)/180))*radius_n;
+	float tn =  c_config(2) + beta;
+	Eigen::Vector3f p_min (xn,yn,tn);
+
+	/*
+	 * Find pose while taking left turn with maximum turning angle.
+	 */
+	float alpha_max = 40;
+	radius_n = wheelbase_/tan(alpha_max*PI_/(float)180);
+	beta = 180*(n_dist/radius_n)/PI_;
+	xn = c_config(0) + (sin(PI_*(c_config(2)+beta)/180) - sin(PI_*c_config(2)/180))*radius_n;
+	yn = c_config(1) + (cos(PI_*c_config(2)/180) - cos(PI_*(c_config(2)+beta)/180))*radius_n;
+	tn =  c_config(2) + beta;
+	Eigen::Vector3f p_max (xn,yn,tn);
+
+	/*
+	 * if neighbor orientation is outside bounds of left and right turn then its not reachable.
+	 */
+	if(n_config(2) < p_min(2) || n_config(2) > p_max(2))
+	{
+		//		std::cout << "invalid due to out of reachable zone.\t" << p_min << p_max<< std::endl;
+		return -1;
+	}
+	// // std::cout << "p_min(2):" << p_min.transpose() <<"\t"<< p_max.transpose() << std::endl;
+	// /*
+	//  * If distance of neighbor to p_min is less than zero or greater than the distance the distance
+	//  * between p_min and p_max then its not reachable
+	//  */
+	// Eigen::Vector2f v1 = p_min.head(2) - n_config.head(2);
+	// Eigen::Vector2f v2 = p_min.head(2) - p_max.head(2);
+	// float d1 = v1.dot(v2)/v2.norm();
+	// float dmin_max = std::sqrt(std::pow(p_min(0)- p_max(0),2) + std::pow(p_min(1)- p_max(1),2));
+  //
+	// if(d1 < 0 || d1 > dmin_max)
+	// {
+	// 	//		std::cout << "invalid due to distance" << std::endl;
+	// 	return -1;
+	// }
+  //
+	// /*
+	//  *  If ratio of distance of neighbor from p_min to distance between p_min and p_max is equal to
+	//  *  ratio of difference of angle of neighbor to p_min and difference between angle of p_min and p_max
+	//  *  with some margin, then neoighbor is reachable.
+	//  */
+	// float ratio1 = d1/dmin_max;
+	// float ratio2 = (p_min(2)-n_config(2))/(p_min(2)-p_max(2));
+  //
+	// float margin = 0.1;
+	// if(std::abs(ratio1-ratio2) > margin)
+	// {
+	// 	//		std::cout << "invalid due to ratio" << std::endl;
+	// 	return -1;
+	// }
+  //
+	// /*
+	//  * Return the average of the two ratios.
+	//  */
+	// return (ratio1+ratio2)/2;
+	return 1;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <typename PointT> float
 pcl::RTI<PointT>::findConfigsConnectivity (Eigen::Vector4f c_config, Eigen::Vector4f n_config)
 {
 	// neighbors ahead of the config
@@ -685,7 +823,7 @@ pcl::RTI<PointT>::findConfigsConnectivity (Eigen::Vector4f c_config, Eigen::Vect
 	float ratio1 = d1/dmin_max;
 	float ratio2 = (p_min(2)-n_config(2))/(p_min(2)-p_max(2));
 
-	float margin = 0.05;
+	float margin = 0.1;
 	if(std::abs(ratio1-ratio2) > margin)
 	{
 		//		std::cout << "invalid due to ratio" << std::endl;
@@ -810,7 +948,9 @@ pcl::RTI<PointT>::generatePRMGraph ()
 				// neighbor_ratio = 0.350599;
 				// std::cout << "wheelbase:" << wheelbase_ << "\t vehicle_id_:"<< vehicle_id_ << std::endl;
 				// exit(0);
-						Eigen::MatrixXf n_sub_configs = getNeighborSubConfigs(c_config,n_config,neighbor_ratio);
+						Eigen::MatrixXf n_sub_configs = getNeighborSubConfigsBasic(c_config,n_config);
+						// Eigen::MatrixXf n_sub_configs = getNeighborSubConfigs(c_config,n_config,neighbor_ratio);
+
 						// std::cout <<"n_sub_configs:"<< n_sub_configs.rows()	 << std::endl;
 						//						std::cout << "call return with n_sub_configs:" << n_sub_configs.transpose() << std::endl;
 						//						Eigen::Vector4f config_diff = n_config - c_config;
@@ -1970,8 +2110,8 @@ pcl::RTI<PointT>::computeRTI ()
 	std::cout << "Validate Configs." << std::endl;
 	validateConfigurations();
 
-	std::cout << "Compute Configs Clearance." << std::endl;
-	clearanceUsingInvalidConfigs();
+	// std::cout << "Compute Configs Clearance." << std::endl;
+	// clearanceUsingInvalidConfigs();
 
 	std::cout << "Get Config Cloud." << std::endl;
 	getConfigCloud();
